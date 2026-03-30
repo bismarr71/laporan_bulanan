@@ -290,14 +290,28 @@ function deriveAttendanceStatus(rowData = {}, date = null, ds = '') {
   return 'Hadir';
 }
 
+function getRandomTime(startH, startM, endH, endM) {
+  const startTotalMinutes = startH * 60 + startM;
+  const endTotalMinutes = endH * 60 + endM;
+  const randomMinutes = Math.floor(Math.random() * (endTotalMinutes - startTotalMinutes + 1)) + startTotalMinutes;
+  const h = Math.floor(randomMinutes / 60);
+  const m = randomMinutes % 60;
+  return `${String(h).padStart(2, '0')}.${String(m).padStart(2, '0')}`;
+}
+
 function normalizeAttendanceRow(rowData = {}, date = null, ds = '') {
   const status = deriveAttendanceStatus(rowData, date, ds);
   const isPresent = status === 'Hadir';
+
+  if (isPresent && !attData[ds]) attData[ds] = { status: 'Hadir' };
+  if (isPresent && !attData[ds].masuk) attData[ds].masuk = getRandomTime(7, 0, 8, 5);
+  if (isPresent && !attData[ds].pulang) attData[ds].pulang = getRandomTime(16, 5, 19, 20);
+
   return {
     status,
     isPresent,
-    masuk: isPresent ? (rowData.masuk ? rowData.masuk : (cfg.jMasuk || '07.58')) : '',
-    pulang: isPresent ? (rowData.pulang ? rowData.pulang : (cfg.jPulang || '17.05')) : ''
+    masuk: isPresent ? attData[ds].masuk : '',
+    pulang: isPresent ? attData[ds].pulang : ''
   };
 }
 
@@ -353,8 +367,8 @@ function updateAttStatus(el) {
   const pulangEl = row ? row.querySelector('input[data-f="pulang"]') : null;
 
   if (el.value === 'Hadir') {
-    attData[ds].masuk = attData[ds].masuk || (cfg.jMasuk || '07.58');
-    attData[ds].pulang = attData[ds].pulang || (cfg.jPulang || '17.05');
+    attData[ds].masuk = attData[ds].masuk || getRandomTime(7, 0, 8, 5);
+    attData[ds].pulang = attData[ds].pulang || getRandomTime(16, 5, 19, 20);
     attData[ds].ket = '';
     if (masukEl) masukEl.value = attData[ds].masuk;
     if (pulangEl) pulangEl.value = attData[ds].pulang;
@@ -367,6 +381,22 @@ function updateAttStatus(el) {
   }
 
   applyAttendanceRowUi(row, el.value);
+}
+
+function randomizeAllAttendance() {
+  if (!curM || !curY) return;
+  for (let d = 1; d <= daysInMonth(curM, curY); d++) {
+    const ds = iso(new Date(curY, curM - 1, d));
+    if (attData[ds]) {
+      const status = deriveAttendanceStatus(attData[ds], new Date(curY, curM - 1, d), ds);
+      if (status === 'Hadir') {
+        attData[ds].masuk = getRandomTime(7, 0, 8, 5);
+        attData[ds].pulang = getRandomTime(16, 5, 19, 20);
+      }
+    }
+  }
+  buildHad(curM, curY);
+  toast('Waktu kehadiran berhasil diacak ulang.', 'success');
 }
 
 function getXmlText(node, ns) {

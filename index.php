@@ -101,6 +101,7 @@ if (!isset($_SESSION['user_id'])) {
       <div class="card">
         <div class="sec-hdr">
           <div class="sec-title">3. Kehadiran</div>
+          <button class="btn btn-outline" style="margin-left:auto; margin-right:15px; padding:4px 10px; font-size:0.85rem;" onclick="randomizeAllAttendance()">🎲 Acak Jam Hadir</button>
           <span class="month-badge" id="hadBadge"></span>
         </div>
         <div class="alert alert-info">💡 Isi jam <strong>Masuk</strong> dan <strong>Pulang</strong> dengan format HH.MM. Untuk kondisi tidak hadir, pilih status <strong>Ijin</strong>, <strong>Sakit</strong>, <strong>Cuti</strong>, atau <strong>Tidak Masuk</strong>.</div>

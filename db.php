@@ -28,6 +28,23 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
     
     $pdo->exec($sql);
+    
+    // Create users table and seed default user if not exists
+    $sql_users = "CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) NOT NULL UNIQUE,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+    $pdo->exec($sql_users);
+
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+    $stmt->execute(['bismar71']);
+    if ($stmt->fetchColumn() == 0) {
+        $hash = password_hash('zabuza71', PASSWORD_DEFAULT);
+        $insert = $pdo->prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)");
+        $insert->execute(['bismar71', $hash]);
+    }
 } catch (PDOException $e) {
     die(json_encode(['status' => 'error', 'message' => 'Database connection failed: ' . $e->getMessage()]));
 }

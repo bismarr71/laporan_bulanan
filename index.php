@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -22,6 +29,7 @@
     <button class="btn btn-outline" onclick="openHistory()">🕰️ Riwayat</button>
     <button class="btn btn-outline" onclick="doPrint()">🖨️ Cetak / PDF</button>
     <button class="btn btn-outline" onclick="doDownloadWord()">📄 Download Word</button>
+    <a href="logout.php" class="btn btn-outline" style="color: #ef4444; border-color: #ef4444; text-decoration: none;">🚪 Keluar</a>
   </div>
 </header>
 
